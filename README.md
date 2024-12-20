@@ -30,7 +30,7 @@ The dataset contains grayscale images (28x28 pixels) for 26 alphabets (A-Z).
 - TensorFlow
 
 ## 📝 Report
-- Report Link:: [Report](https://docs.google.com/document/d/1wiXiLhfn2dR_Un4borjMKspJGyvDPn4aGYBzFPszsSU/edit?usp=sharing))
+- Report Link:: [Report](https://docs.google.com/document/d/1wiXiLhfn2dR_Un4borjMKspJGyvDPn4aGYBzFPszsSU/edit?usp=sharing)
 
 
 ## 🚀 Running the Project  
