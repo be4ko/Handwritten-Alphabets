@@ -4,7 +4,7 @@ A machine learning project to classify grayscale images of handwritten alphabets
 
 ## 📂 Dataset  
 The dataset contains grayscale images (28x28 pixels) for 26 alphabets (A-Z).  
-[Download Dataset] (https://www.kaggle.com/datasets/sachinpatel21/az-handwritten-alphabets-in-csv-format)  
+[Download Dataset](https://www.kaggle.com/datasets/sachinpatel21/az-handwritten-alphabets-in-csv-format)  
 
 
 ## 🎯 Objectives  
@@ -27,7 +27,10 @@ The dataset contains grayscale images (28x28 pixels) for 26 alphabets (A-Z).
 - Python  
 - NumPy, Matplotlib  
 - scikit-learn  
-- TensorFlow  
+- TensorFlow
+
+## 📝 Report
+- Report Link:: [Report](https://docs.google.com/document/d/1wiXiLhfn2dR_Un4borjMKspJGyvDPn4aGYBzFPszsSU/edit?usp=sharing))
 
 
 ## 🚀 Running the Project  
@@ -46,7 +49,8 @@ pip install -r requirements.txt
 
 
 ## 📊 Results
-The models are evaluated based on their accuracy, confusion matrix, and F1-scores. Neural networks demonstrate the best performance, with detailed comparisons in the code output.
+The models are evaluated based on their accuracy, confusion matrix, and F1-scores.
+Neural networks demonstrate the best performance, with detailed comparisons in the code output.
 
 ## 🤝 Contributers
 - Eng. Ahmed Shabaan
