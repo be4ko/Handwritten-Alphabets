@@ -7,6 +7,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix, f1_score, classification_report
 import seaborn as sns
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.utils import to_categorical
 
 # change this file_path to match your dataset location
 data_path = r"C:\Users\Beeko\A_Z Handwritten Data.csv"
@@ -197,3 +200,80 @@ plot_error_and_accuracy(y_val, val_predictions, "Validation Error and Accuracy")
 
 # testing the model
 evaluate_model(model, X_test, y_test, "Logistic Regression")
+
+print("################################## Starting Third experiment... ######################################")
+
+
+one_hot_labels = to_categorical(data.iloc[:, 0].values, num_classes=26)
+
+X_train, X_temp, y_train, y_temp = train_test_split(images, one_hot_labels, test_size=0.3, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+
+model1 = Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(128, activation='relu'),
+    Dense(26, activation='softmax')
+])
+
+model2 = Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(256, activation='tanh'),
+    Dropout(0.25),
+    Dense(128, activation='relu'),
+    Dense(26, activation='softmax')
+])
+
+model1.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model2.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+history1 = model1.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=10, batch_size=32, verbose=True)
+history2 = model2.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=10, batch_size=32, verbose=True)
+
+# Plot accuracy and loss curves for both models
+def plot_history(history, model_name):
+    plt.figure(figsize=(12, 4))
+    # Accuracy
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Train Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title(f'{model_name} Accuracy')
+    plt.legend()
+
+    # Loss
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Train Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title(f'{model_name} Loss')
+    plt.legend()
+    plt.show()
+
+plot_history(history1, "Model 1")
+plot_history(history2, "Model 2")
+
+# Save the best model
+best_model = model2 if max(history2.history['val_accuracy']) > max(history1.history['val_accuracy']) else model1
+worst_model = model1 if best_model == model2 else model2
+best_model.save('best_model.h5')
+worst_model.save('worst_model.h5')
+
+# Reload and test the best model
+loaded_model = load_model('best_model.h5')
+
+evaluate_model(loaded_model, X_test, y_test, "Best ANN Model")
+
+# Evaluate on the test set
+y_pred = np.argmax(loaded_model.predict(X_test), axis=1)
+y_true = np.argmax(y_test, axis=1)
+
+# Confusion Matrix
+cm = confusion_matrix(y_true, y_pred)
+plt.figure(figsize=(12, 8))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_true), yticklabels=np.unique(y_true))
+plt.title(f"Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+# F1 Score
+f1 = f1_score(y_true, y_pred, average='macro')
+print("F1 Score:", f1)

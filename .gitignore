@@ -1,3 +1,5 @@
 *.pdf
 .idea
 *.csv
+img/
+*.h5
