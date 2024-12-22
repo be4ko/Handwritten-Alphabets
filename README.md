@@ -24,10 +24,15 @@ The dataset contains grayscale images (28x28 pixels) for 26 alphabets (A-Z).
 
 
 ## 🛠️ Technologies Used  
-- Python  
-- NumPy, Matplotlib  
-- scikit-learn  
-- TensorFlow
+- Python3
+- Colab google
+- Kaggle
+- NumPy, Matplotlib, Scikit-learn, TensorFlow
+
+## 🤖 Machine learning Algorithms
+- SVM
+- Logistic Regression
+- Neural Networks
 
 ## 📝 Report
 - Report Link:: [Report](https://docs.google.com/document/d/1wiXiLhfn2dR_Un4borjMKspJGyvDPn4aGYBzFPszsSU/edit?usp=sharing)
@@ -49,7 +54,7 @@ pip install -r requirements.txt
 
 
 ## 📊 Results
-The models are evaluated based on their accuracy, confusion matrix, and F1-scores.
+The models are evaluated based on accuracy, confusion matrix, and F1 scores.
 Neural networks demonstrate the best performance, with detailed comparisons in the code output.
 
 ## 🤝 Contributers
