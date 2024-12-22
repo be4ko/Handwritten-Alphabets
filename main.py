@@ -11,12 +11,7 @@ from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, Dropout, Flatten
 from tensorflow.keras.utils import to_categorical
 
-# change this file_path to match your dataset location
-data_path = r"C:\Users\Beeko\A_Z Handwritten Data.csv"
-print("Loading dataset...")
-data = pd.read_csv(data_path, header=None)
-print("Finished dataset loading")
-
+data = pd.read_csv("A_Z Handwritten Data.csv", header=None)
 
 print("################################## Data exploration and preparation ######################################")
 # Extract labels and images
@@ -57,22 +52,9 @@ for i, label in enumerate(unique_labels[:5]):  # Visualize first 5 unique classe
 plt.tight_layout()
 plt.savefig("images.png")                      # uncomment if you want to save :)
 
-def plot_metrics(y_true, y_pred):
+def plot_confusion_matrix(y_true, y_pred):
     cm = confusion_matrix(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred, average='weighted')
-    report = classification_report(y_true, y_pred)
-    
-    plt.figure(figsize=(10, 8))
-    plt.title("Confusion Matrix")
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_true), yticklabels=np.unique(y_true))
-    plt.xlabel("Predicted")
-    plt.ylabel("Actual")
-    plt.show()
-    print("\nClassification Report:")
-    print(report)
-
-    # Plot confusion matrix
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(14, 8))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_true), yticklabels=np.unique(y_true))
     plt.title("Confusion Matrix")
     plt.xlabel("Predicted")
@@ -86,7 +68,7 @@ images_flattened = images.reshape(images.shape[0], -1)
 
 # Split the data into training and testing datasets
 X_train, X_test, y_train, y_test = train_test_split(
-    images_flattened, labels, test_size=0.25, random_state=42, stratify=labels)
+    images_flattened, labels, test_size=0.3, random_state=42, stratify=labels)
 
 # Train linear SVM
 print("Training linear SVM...")
@@ -131,9 +113,7 @@ print("################################## Starting Second experiment... ########
 
 images_flattened = images.reshape(images.shape[0], -1)
 
-X_train, X_test, y_train, y_test = train_test_split(images_flattened, labels, test_size=0.30, random_state=42)
 X_train_split, X_val, y_train_split, y_val = train_test_split(X_train, y_train, test_size=0.50, random_state=42)
-
 
 class LogisticRegressionOVR:
     def __init__(self, num_classes, learning_rate=0.2, num_iterations=1000):
@@ -163,7 +143,7 @@ class LogisticRegressionOVR:
 
             self.weights -= self.learning_rate * gradient_weights
             self.biases -= self.learning_rate * gradient_biases
-            if (i+1)%100 == 0:
+            if (i + 1) % 100 == 0:
                 print(f"End of Iteration {i+1}")
 
     def predict(self, X):
@@ -211,23 +191,23 @@ X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, r
 
 model1 = Sequential([
     Flatten(input_shape=(28, 28)),
-    Dense(128, activation='relu'),
+    Dense(200, activation='relu'),
     Dense(26, activation='softmax')
 ])
 
 model2 = Sequential([
     Flatten(input_shape=(28, 28)),
-    Dense(256, activation='tanh'),
-    Dropout(0.25),
-    Dense(128, activation='relu'),
+    Dense(300, activation='tanh'),
+    Dropout(0.2),
+    Dense(100, activation='relu'),
     Dense(26, activation='softmax')
 ])
 
 model1.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 model2.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-history1 = model1.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=10, batch_size=32, verbose=True)
-history2 = model2.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=10, batch_size=32, verbose=True)
+history1 = model1.fit(X_train_split, y_train_split, validation_data=(X_val, y_val), epochs=15, batch_size=32, verbose=True)
+history2 = model2.fit(X_train_split, y_train_split, validation_data=(X_val, y_val), epochs=15, batch_size=32, verbose=True)
 
 # Plot accuracy and loss curves for both models
 def plot_history(history, model_name):
@@ -256,23 +236,20 @@ worst_model = model1 if best_model == model2 else model2
 best_model.save('best_model.h5')
 worst_model.save('worst_model.h5')
 
+if best_model == model1:
+    print("Model 1 has the best accuracy")
+else:
+    print("Model 2 has the best accuracy")
+
 # Reload and test the best model
 loaded_model = load_model('best_model.h5')
-
-evaluate_model(loaded_model, X_test, y_test, "Best ANN Model")
 
 # Evaluate on the test set
 y_pred = np.argmax(loaded_model.predict(X_test), axis=1)
 y_true = np.argmax(y_test, axis=1)
 
 # Confusion Matrix
-cm = confusion_matrix(y_true, y_pred)
-plt.figure(figsize=(12, 8))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_true), yticklabels=np.unique(y_true))
-plt.title(f"Confusion Matrix")
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.show()
+plot_confusion_matrix(y_true, y_pred)
 
 # F1 Score
 f1 = f1_score(y_true, y_pred, average='macro')
