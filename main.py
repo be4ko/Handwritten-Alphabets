@@ -206,8 +206,8 @@ model2 = Sequential([
 model1.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 model2.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-history1 = model1.fit(X_train_split, y_train_split, validation_data=(X_val, y_val), epochs=15, batch_size=32, verbose=True)
-history2 = model2.fit(X_train_split, y_train_split, validation_data=(X_val, y_val), epochs=15, batch_size=32, verbose=True)
+history1 = model1.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=15, batch_size=32, verbose=True)
+history2 = model2.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=15, batch_size=32, verbose=True)
 
 # Plot accuracy and loss curves for both models
 def plot_history(history, model_name):
