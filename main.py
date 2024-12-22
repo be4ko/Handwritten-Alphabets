@@ -1,8 +1,12 @@
 # بسم الله الرحمن الرحيم
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix, f1_score, classification_report
+import seaborn as sns
 
 # change this file_path to match your dataset location
 data_path = r"C:\Users\Beeko\A_Z Handwritten Data.csv"
@@ -16,14 +20,14 @@ print("################################## Data exploration and preparation #####
 labels = data.iloc[:, 0].values
 images = data.iloc[:, 1:].values
 
-unique_classes, class_counts = np.unique(labels, return_counts=True)
+unique_classes, class_count = np.unique(labels, return_counts=True)
 print(f"Number of unique classes: {len(unique_classes)}")
 print(f"Classes: {unique_classes}")
-print(f"Class Counts: {class_counts}")
+print(f"Class Counts: {class_count}")
 
 # Plot the distribution
 plt.figure(figsize=(10, 5))
-plt.bar(unique_classes, class_counts, color='blue')
+plt.bar(unique_classes, class_count, color='blue')
 plt.xlabel('Classes')
 plt.ylabel('Number of images')
 plt.title('Class distribution')
@@ -48,6 +52,54 @@ for i, label in enumerate(unique_labels[:5]):  # Visualize first 5 unique classe
     plt.axis("off")
 
 plt.tight_layout()
-# plt.savefig("images.png") # uncomment if you want to save :)
+plt.savefig("images.png")                      # uncomment if you want to save :)
 
-print("################################## First experiment  ######################################")
+print("################################## Starting First experiment... ######################################")
+
+# Flatten the images for SVM input
+images_flattened = images.reshape(images.shape[0], -1)
+
+# Split the data into training and testing datasets
+X_train, X_test, y_train, y_test = train_test_split(
+    images_flattened, labels, test_size=0.25, random_state=42, stratify=labels)
+
+# Train linear SVM
+print("Training linear SVM...")
+linear_svm = SVC(kernel='linear', random_state=42)
+linear_svm.fit(X_train, y_train)
+
+# Train RBF SVM
+print("Training RBF SVM...")
+rbf_svm = SVC(kernel='rbf', random_state=42)
+rbf_svm.fit(X_train, y_train)
+
+# Evaluate models
+print("Evaluating models...")
+
+
+def evaluate_model(model, x_test, y_test, kernel_name):
+    y_pred = model.predict(x_test)
+    cm = confusion_matrix(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred, average='weighted')
+
+    print(f"\n{kernel_name} Kernel")
+    print("Confusion Matrix:")
+    print(cm)
+    print("\nClassification Report:")
+    print(classification_report(y_test, y_pred))
+    print(f"F1-Score: {f1}\n")
+
+    # Plot confusion matrix
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.unique(y_test), yticklabels=np.unique(y_test))
+    plt.title(f"Confusion Matrix ({kernel_name} Kernel)")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.show()
+
+
+# Evaluate linear SVM
+evaluate_model(linear_svm, X_test, y_test, "Linear")
+
+# Evaluate RBF SVM
+evaluate_model(rbf_svm, X_test, y_test, "RBF")
